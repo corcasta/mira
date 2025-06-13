@@ -1,0 +1,28 @@
+services:
+  robocasa-sim:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ./demo:/workspace/demo
+    ports:
+      - 8081:8081
+    entrypoint: 
+      - /bin/bash
+      - -c
+      - |
+        xpra start \
+          --start="python3 demo/demo.py" \
+          --bind-tcp=0.0.0.0:8081 \
+          --html=on \
+          --webcam=no && \
+        tail -f /dev/null  
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
